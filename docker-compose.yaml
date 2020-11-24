@@ -1,0 +1,33 @@
+version: '3.4'
+services:
+  # hosted in public internet facing network (imagine your laptop as the internet)
+  api:
+    build:
+      context: ./api
+    links:
+      - 'database:database'
+    image: gillmerindustries/localdevapi:0.5
+    ports:
+      - "5000:5000"
+    networks:
+      # connected on both networks
+      - public-network
+      - data-network
+
+  database:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: mygeheimewagwoord
+    ports:
+      - "5432:5432"
+    networks:
+      - data-network
+
+# I generally like to match up the networks to how it will be on AWS in regards to
+# subnets and security groups
+networks:
+    # public subnet with security group only allow traffic from frontend.
+    public-network:
+    # private subnet with security group only allowing traffic from middleware
+    data-network:
